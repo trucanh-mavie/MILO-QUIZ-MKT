@@ -113,7 +113,6 @@ async function pull(){
     rows=Object.values(m).sort((a,b)=>b.score-a.score);window.localRev=true;show('rev');renderRev();$('hostmsg').textContent='Live: '+rows.length+' players'}
   catch(e){$('hostmsg').textContent='Could not load the leaderboard. Check the API link.'}
 }
-setInterval(()=>{if(window.live)pull()},4000);
 const hash=s=>{let h=7;for(const c of s+'milo27')h=(h*31+c.charCodeAt(0))>>>0;return h.toString(36).toUpperCase()};
 const mk=(n,s,c)=>n+'~'+s+'~'+c+'~'+hash(n+s+c);
 let db=null,uid=null,owner=false,status='open',rows=[],G=null,playing=false,myName='';
