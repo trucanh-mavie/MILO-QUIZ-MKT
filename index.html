@@ -10,7 +10,7 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:760px;margin:0 auto;padding:16px}
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
 h1{font:18px/1.5 var(--px);color:var(--g);margin:8px 0}
 h2{font:13px/1.6 var(--px);margin:0 0 12px}
 .card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:18px;margin-top:12px}
@@ -20,12 +20,12 @@ button{font:12px/1.4 var(--px);padding:14px 16px;border:0;border-radius:10px;bac
 button.alt{background:transparent;color:var(--g);border:2px solid var(--g)}
 button:disabled{opacity:.5;cursor:default}
 .hide{display:none!important}
-.hud{display:flex;justify-content:space-between;gap:8px;font:10px/1.8 var(--px);flex-wrap:wrap;margin-bottom:8px}
+.hud{display:flex;justify-content:space-between;gap:8px;font:clamp(10px,1.4vw,15px)/1.8 var(--px);flex-wrap:wrap;margin-bottom:8px}
 canvas{width:100%;display:block;border:2px solid var(--line);border-radius:12px;background:#f7f3e3;touch-action:manipulation}
 .stage{position:relative}
-#quiz{position:absolute;inset:0;background:rgba(10,30,18,.93);color:#fff;border-radius:12px;padding:12px;overflow:auto}
-#quiz .q{font-size:15px;font-weight:600;margin:4px 0 8px}
-#quiz .o{background:#fff;color:#16301f;font:600 14px/1.3 system-ui,sans-serif;text-align:left;margin-top:6px;padding:10px 12px}
+#quiz{position:absolute;inset:0;background:rgba(10,30,18,.93);color:#fff;border-radius:12px;padding:clamp(12px,2vw,28px);overflow:auto}
+#quiz .q{font-size:clamp(15px,2.1vw,26px);font-weight:600;margin:4px 0 8px}
+#quiz .o{background:#fff;color:#16301f;font:600 clamp(14px,1.7vw,21px)/1.3 system-ui,sans-serif;text-align:left;margin-top:6px;padding:10px 12px}
 #quiz .o.ok{background:#2fbf6c;color:#04210f}#quiz .o.no{background:#e5584d;color:#fff}
 .bar{height:6px;background:#ffffff33;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc);width:100%}
 .pod{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:18px 0}
@@ -41,14 +41,14 @@ canvas{width:100%;display:block;border:2px solid var(--line);border-radius:12px;
 
 <section id="join" class="card">
   <h2>Ready?</h2>
-  <p class="mute">You have <b>5 minutes</b>. Jump over the cacti (Space / ↑ / tap the screen). Every ~20 seconds a <b>quiz question</b> pops up: answer correctly for bonus points and a power-up (🛡 shield, ✖2 score, ❤ extra life). The run ends when you lose all 3 lives or time runs out. Your best score is kept.</p>
+  <p class="mute">You have <b>3 minutes</b>. Jump over the cacti (Space / ↑ / tap the screen). Every 10 seconds a <b>quiz question</b> pops up. Answer correctly to spin the <b>mystery multiplier</b> on your bonus: x0 (ouch!), x2 or x3. The run ends when you lose all 3 lives or time runs out. You only get <b>one attempt</b>, so make it count!</p>
   <input id="name" maxlength="18" placeholder="Enter your name" autocomplete="off">
   <button id="go">START</button>
   <p class="mute" id="players"></p><p class="mute" id="note"></p>
   <div id="host" class="hide"><hr style="border-color:var(--line)"><b>Host</b>
     <button id="qrb" class="alt">SHOW JOIN QR</button>
     <div id="qrbox" class="hide" style="background:#fff;padding:14px;border-radius:10px;margin-top:10px;text-align:center"><div id="qr" style="display:inline-block"></div><div style="color:#16301f;font-size:13px;margin-top:6px;word-break:break-all">Scan to join: <span id="qrurl"></span></div></div>
-    <textarea id="codes" rows="5" placeholder="Paste score codes, one per line" style="width:100%;margin-top:10px;padding:10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit"></textarea><button id="rank" class="alt">RANK PASTED CODES</button><p class="mute" id="hostmsg"></p>
+    <button id="live" class="alt">SHOW LIVE TOP 3</button><textarea id="codes" rows="5" placeholder="Paste score codes, one per line" style="width:100%;margin-top:10px;padding:10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit"></textarea><button id="rank" class="alt">RANK PASTED CODES</button><p class="mute" id="hostmsg"></p>
     <button id="reveal" class="alt hide">REVEAL TOP 3</button>
     <button id="reset" class="alt hide">RESET SCORES &amp; REOPEN</button></div>
 </section>
@@ -62,11 +62,11 @@ canvas{width:100%;display:block;border:2px solid var(--line);border-radius:12px;
 <section id="end" class="card hide">
   <h2>GAME OVER!</h2><p id="res" style="font-size:18px"></p><p class="mute" id="save"></p><p><b>Your score code</b> (send it to the host):</p><input id="code" readonly onclick="this.select()"><button id="copy" class="alt">COPY CODE</button>
   <p>The top 3 will be announced when the host reveals the results.</p>
-  <button id="again">PLAY AGAIN TO BEAT YOUR BEST</button>
+  <button id="again" class="hide">PLAY AGAIN</button>
 </section>
 
 <section id="rev" class="card hide">
-  <h2>🏆 FINAL TOP 3</h2><div class="pod" id="pod"></div><div id="rest" class="mute"></div><button id="back">BACK / PLAY AGAIN</button>
+  <h2>🏆 FINAL TOP 3</h2><div class="pod" id="pod"></div><div id="rest" class="mute"></div><button id="back">BACK</button>
 </section>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -97,7 +97,23 @@ const Q=[
 ["Which budget method does the plan use?",["Objective-and-Task","Percentage of sales","Competitive parity","Affordable method"]]
 ];
 const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-const SECS=300;
+const SECS=180;
+const API='PASTE_WEB_APP_URL_HERE';
+const played=()=>{try{return localStorage.getItem('milo_played')}catch(e){return null}};
+let pid;try{pid=localStorage.getItem('milo_id');if(!pid){pid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('milo_id',pid)}}catch(e){pid=Math.random().toString(36).slice(2)}
+async function submit(fin,cor){
+  try{localStorage.setItem('milo_played',JSON.stringify({name:myName,score:fin,correct:cor}))}catch(e){}
+  if(!API.startsWith('http')){$('save').textContent='Leaderboard not set up. Send your score code to the host.';return}
+  try{await fetch(API,{method:'POST',mode:'no-cors',body:JSON.stringify({id:pid,name:myName,score:fin,correct:cor})});$('save').textContent='Score submitted! Watch the big screen for the Top 3.'}
+  catch(e){$('save').textContent='Could not submit. Send your score code to the host.'}
+}
+async function pull(){
+  try{const l=await (await fetch(API+'?t='+Date.now())).json();const m={};
+    l.forEach(r=>{const k=String(r.name).toLowerCase();if(!m[k]||m[k].score<r.score)m[k]=r});
+    rows=Object.values(m).sort((a,b)=>b.score-a.score);window.localRev=true;show('rev');renderRev();$('hostmsg').textContent='Live: '+rows.length+' players'}
+  catch(e){$('hostmsg').textContent='Could not load the leaderboard. Check the API link.'}
+}
+setInterval(()=>{if(window.live)pull()},4000);
 const hash=s=>{let h=7;for(const c of s+'milo27')h=(h*31+c.charCodeAt(0))>>>0;return h.toString(36).toUpperCase()};
 const mk=(n,s,c)=>n+'~'+s+'~'+c+'~'+hash(n+s+c);
 let db=null,uid=null,owner=false,status='open',rows=[],G=null,playing=false,myName='';
@@ -122,11 +138,11 @@ function renderRev(){
 }
 
 /* ---------- game ---------- */
-const cv=$('cv'),cx=cv.getContext('2d'),W=720,H=240,GY=196;
+const cv=$('cv'),cx=cv.getContext('2d'),W=720,H=240,GY=196;cv.width=W*2;cv.height=H*2;cx.scale(2,2);
 const DINO=["......#####..",".....##.#####",".....#########",".....####....",".....#####...","#...######...","##.#######.#.","###########..",".#########...","..#######....","...####.##...","...##...##..."];
-function start(){
+function start(){if(played())return;
   myName=($('name').value.trim()||'Dino').slice(0,18);
-  G={clock:0,runT:0,nextQ:18,dist:0,bonus:0,lives:3,correct:0,asked:0,y:0,vy:0,obs:[],spawn:1.2,inv:0,shield:0,x2:0,paused:false,over:false,qs:shuf(Q.map(q=>q)),last:performance.now(),qt:0,ans:false,cur:null,ds:0};
+  G={clock:0,runT:0,nextQ:8,dist:0,bonus:0,lives:3,correct:0,asked:0,y:0,vy:0,obs:[],spawn:1.2,inv:0,shield:0,x2:0,paused:false,over:false,qs:shuf(Q.map(q=>q)),last:performance.now(),qt:0,ans:false,cur:null,ds:0};
   playing=true;$('end').classList.add('hide');show('game');requestAnimationFrame(loop);
 }
 const score=()=>Math.floor(G.ds)+G.bonus;
@@ -139,20 +155,20 @@ function loop(now){
   draw();hud();requestAnimationFrame(loop);
 }
 function update(dt){
-  G.runT+=dt;const sp=300+Math.min(G.runT,240)*1.1;G.dist+=sp*dt;G.ds+=sp*dt/10*(G.x2>0?2:1);
+  G.runT+=dt;const sp=320+Math.min(G.runT,150)*2.2;G.dist+=sp*dt;G.ds+=sp*dt/10*(G.x2>0?2:1);
   G.vy-=2000*dt;G.y+=G.vy*dt;if(G.y<=0){G.y=0;G.vy=0}
   G.inv-=dt;G.shield-=dt;G.x2-=dt;
   G.spawn-=dt;if(G.spawn<=0){const n=1+(Math.random()*3|0);G.obs.push({x:W+20,w:n*15,h:28+Math.random()*24});G.spawn=1.0+Math.random()*1.1}
   G.obs.forEach(o=>o.x-=sp*dt);G.obs=G.obs.filter(o=>o.x+o.w>-10);
   const dx=62,dw=26,dtop=GY-G.y-34,dbot=GY-G.y;
   for(const o of G.obs){if(dx+dw>o.x+3&&dx<o.x+o.w-3&&dbot>GY-o.h+4&&dtop<GY){
-    if(G.inv<=0&&G.shield<=0){G.lives--;G.inv=1.4;if(G.lives<=0){finish();return}}}}
-  if(G.runT>=G.nextQ){G.nextQ+=20;openQuiz()}
+    if(G.inv<=0&&G.shield<=0){G.lives--;G.inv=1.4;G.shake=.35;if(G.lives<=0){finish();return}}}}
+  if(G.runT>=G.nextQ){G.nextQ+=10;openQuiz()}
 }
 function openQuiz(){
   const src=G.qs[G.asked%G.qs.length];G.asked++;
   const opts=src[1].map((t,i)=>({t,ok:i===0}));shuf(opts);
-  G.cur={q:src[0],opts};G.paused=true;G.ans=false;G.qt=12;
+  G.cur={q:src[0],opts};G.paused=true;G.ans=false;G.qt=8;
   const el=$('quiz');el.classList.remove('hide');el.innerHTML='';
   const b=document.createElement('div');b.className='bar';b.innerHTML='<i id="qb"></i>';
   const q=document.createElement('div');q.className='q';q.textContent='❓ '+src[0];
@@ -160,30 +176,30 @@ function openQuiz(){
   opts.forEach((o,i)=>{const bt=document.createElement('button');bt.className='o';bt.textContent=(i+1)+'. '+o.t;bt.onclick=()=>answer(i);el.append(bt)});
   const f=document.createElement('div');f.id='fb';f.style.cssText='margin-top:8px;font-weight:700';el.append(f);
 }
-function qbar(){const e=$('qb');if(e)e.style.width=Math.max(0,G.qt/12*100)+'%'}
+function qbar(){const e=$('qb');if(e)e.style.width=Math.max(0,G.qt/8*100)+'%'}
 function answer(i){
   if(!G||!G.paused||G.ans)return;G.ans=true;
   const bs=$('quiz').querySelectorAll('.o'),ok=i>=0&&G.cur.opts[i].ok;
   G.cur.opts.forEach((o,k)=>{if(o.ok)bs[k].classList.add('ok');else if(k===i)bs[k].classList.add('no')});
   let msg;
-  if(ok){const pts=150+Math.ceil(Math.max(0,G.qt))*10;G.bonus+=pts;G.correct++;
-    const r=Math.random()*3|0;
-    if(r===2&&G.lives<3){G.lives++;msg='❤ +1 life!'}else if(r===1){G.x2=10;msg='✖2 score for 10 seconds!'}else{G.shield=8;msg='🛡 Shield for 8 seconds!'}
-    msg='Correct! +'+pts+' pts · '+msg}
+  if(ok){const base=100+Math.ceil(Math.max(0,G.qt))*10,r=Math.random(),m=r<.2?0:r<.6?2:3,pts=base*m;G.bonus+=pts;G.correct++;
+    let k=0;const iv=setInterval(()=>{const f=$('fb');if(f)f.textContent='🎰 Spinning… x'+[0,2,3][k++%3]},110);
+    setTimeout(()=>{clearInterval(iv);const f=$('fb');if(f)f.textContent='Correct! '+base+' × '+m+' = +'+pts+(m===0?' 💀 bonus lost!':m===3?' 🔥 JACKPOT!':' ⚡')},1400);
+    msg='🎰 Spinning…'}
   else{G.bonus=Math.max(-Math.floor(G.ds),G.bonus-30);msg=(i<0?'Time’s up! ':'Wrong! ')+'-30 pts'}
   $('fb').textContent=msg;
-  setTimeout(()=>{if(!G||G.over)return;$('quiz').classList.add('hide');G.paused=false;G.obs=[];G.inv=Math.max(G.inv,1.5);G.last=performance.now()},1600);
+  setTimeout(()=>{if(!G||G.over)return;$('quiz').classList.add('hide');G.paused=false;G.obs=[];G.inv=Math.max(G.inv,1.5);G.last=performance.now()},ok?2900:1600);
 }
 function px(rows,x,y,s,c){cx.fillStyle=c;rows.forEach((r,j)=>{for(let i=0;i<r.length;i++)if(r[i]==='#')cx.fillRect(x+i*s,y+j*s,s,s)})}
 function draw(){
-  cx.clearRect(0,0,W,H);cx.fillStyle='#f7f3e3';cx.fillRect(0,0,W,H);
+  cx.save();if(G.shake>0){G.shake-=.016;cx.translate(Math.random()*10-5,Math.random()*10-5)}cx.clearRect(-10,-10,W+20,H+20);cx.fillStyle='#f7f3e3';cx.fillRect(0,0,W,H);
   cx.fillStyle='#e7e0c6';[[80,40],[330,60],[560,30]].forEach(([x,y],i)=>{const xx=((x-G.dist*.05*(i+1))%860+860)%860-80;cx.fillRect(xx,y,60,10);cx.fillRect(xx+12,y-8,30,8)});
   cx.fillStyle='#6b6b5a';cx.fillRect(0,GY,W,2);
   for(let i=0;i<14;i++){const x=((i*60-G.dist)%W+W)%W;cx.fillRect(x,GY+8+(i%3)*6,10,2)}
   cx.fillStyle='#0a5c2c';G.obs.forEach(o=>{for(let k=0;k<o.w/15;k++){const x=o.x+k*15;cx.fillRect(x+5,GY-o.h,6,o.h);cx.fillRect(x,GY-o.h*.6,4,10);cx.fillRect(x+12,GY-o.h*.7,4,10)}});
   const blink=G.inv>0&&Math.floor(G.clock*10)%2;
   if(!blink){const d=DINO.slice();if(G.y<=0&&Math.floor(G.clock*10)%2)d[11]='...##.......';px(d,58,GY-G.y-36,3,'#00843d')}
-  if(G.shield>0){cx.strokeStyle='#f2b705';cx.lineWidth=3;cx.beginPath();cx.arc(76,GY-G.y-18,28,0,7);cx.stroke()}
+  if(G.shield>0){cx.strokeStyle='#f2b705';cx.lineWidth=3;cx.beginPath();cx.arc(76,GY-G.y-18,28,0,7);cx.stroke()}cx.restore()
 }
 function hud(){
   $('hScore').textContent='SCORE '+score();$('hLives').textContent='❤'.repeat(Math.max(0,G.lives));
@@ -195,7 +211,7 @@ async function finish(){
   const fin=Math.max(0,score()),cor=G.correct;
   $('quiz').classList.add('hide');show('end');
   $('res').textContent='Score: '+fin+' · '+cor+'/'+G.asked+' correct';$('save').textContent='Saving your score…';$('code').value=mk(myName.replace(/[~\n]/g,''),fin,cor);
-  if(!db||!uid){$('save').textContent='No online leaderboard here. Send your score code to the host.';route2();return}
+  if(!db||!uid){submit(fin,cor);return}
   try{const ref=db.doc('scores/'+uid),s=await ref.get(),prev=s.exists?s.data().score:-1;
     if(fin>prev)await ref.set({name:myName,score:fin,correct:cor,at:Date.now()});
     $('save').textContent=fin>prev?'Your score is saved!':'Your previous best ('+prev+') is higher and stays on the board.'}
@@ -213,7 +229,8 @@ addEventListener('keydown',e=>{
 cv.addEventListener('pointerdown',jump);
 const U=location.origin+location.pathname;
 $('qrb').onclick=()=>{$('qrurl').textContent=U;const b=$('qrbox');b.classList.toggle('hide');if(!$('qr').firstChild&&window.QRCode)new QRCode($('qr'),{text:U,width:240,height:240})};
-$('back').onclick=()=>{window.localRev=false;window.skipRev=true;show('join')};
+$('live').onclick=()=>{if(!API.startsWith('http')){$('hostmsg').textContent='Set the API link in index.html first.';return}window.live=true;renderRev.done=0;pull()};
+$('back').onclick=()=>{window.live=false;window.localRev=false;window.skipRev=true;show('join')};
 $('copy').onclick=()=>{const i=$('code');i.select();try{navigator.clipboard.writeText(i.value)}catch(e){document.execCommand('copy')}};
 $('rank').onclick=()=>{const m={};let bad=0;$('codes').value.split(/\n/).forEach(l=>{l=l.trim();if(!l)return;const p=l.split('~');if(p.length!==4||hash(p[0]+p[1]+p[2])!==p[3].toUpperCase()||isNaN(+p[1])){bad++;return}const s=+p[1];if(!m[p[0]]||m[p[0]].score<s)m[p[0]]={name:p[0],score:s,correct:+p[2]}});
   rows=Object.values(m).sort((a,b)=>b.score-a.score);window.localRev=true;renderRev.done=0;$('hostmsg').textContent=rows.length+' valid, '+bad+' invalid.';if(rows.length){show('rev');renderRev()}};
@@ -223,7 +240,7 @@ $('reset').onclick=async()=>{if(!confirm('Delete all scores and reopen the game?
 
 /* ---------- init (standalone, no login) ---------- */
 (function(){
-  $('note').textContent='When your run ends, you get a score code. Send it to the host.';
+  {const pl=played();if(pl){let o={};try{o=JSON.parse(pl)}catch(e){}$('go').disabled=true;$('note').textContent='You already played'+(o.score!=null?' (score '+o.score+')':'')+'. One attempt per person!'}else $('note').textContent='You get one attempt. When it ends, your score is sent automatically.'}
   if(new URLSearchParams(location.search).has('host'))$('host').classList.remove('hide');
 })();
 </script></body></html>
