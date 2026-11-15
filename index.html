@@ -240,7 +240,7 @@ $('reset').onclick=async()=>{if(!confirm('Delete all scores and reopen the game?
 
 /* ---------- init (standalone, no login) ---------- */
 (function(){
-  {const pl=played();if(pl){let o={};try{o=JSON.parse(pl)}catch(e){}$('go').disabled=true;$('note').textContent='You already played'+(o.score!=null?' (score '+o.score+')':'')+'. One attempt per person!'}else $('note').textContent='You get one attempt. When it ends, your score is sent automatically.'}
+  $('note').textContent='Bạn có thể chơi lại nhiều lần!';
   if(new URLSearchParams(location.search).has('host'))$('host').classList.remove('hide');
 })();
 </script></body></html>
