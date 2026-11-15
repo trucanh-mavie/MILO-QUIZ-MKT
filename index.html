@@ -41,7 +41,7 @@ canvas{width:100%;display:block;border:2px solid var(--line);border-radius:12px;
 
 <section id="join" class="card">
   <h2>Ready?</h2>
-  <p class="mute">You have <b>3 minutes</b>. Jump over the cacti (Space / ↑ / tap the screen). Every 10 seconds a <b>quiz question</b> pops up. Answer correctly to spin the <b>mystery multiplier</b> on your bonus: x0 (ouch!), x2 or x3. The run ends when you lose all 3 lives or time runs out. You only get <b>one attempt</b>, so make it count!</p>
+  <p class="mute">You have <b>3 minutes</b>. Jump over the cacti (Space / ↑ / tap the screen). Every 10 seconds a <b>quiz question</b> pops up. Answer correctly to spin the <b>mystery multiplier</b> on your <b>whole score</b>: x0 (wipe-out!), x2 or x3. The run ends when you lose all 3 lives or time runs out. You only get <b>one attempt</b>, so make it count!</p>
   <input id="name" maxlength="18" placeholder="Enter your name" autocomplete="off">
   <button id="go">START</button>
   <p class="mute" id="players"></p><p class="mute" id="note"></p>
@@ -182,9 +182,9 @@ function answer(i){
   const bs=$('quiz').querySelectorAll('.o'),ok=i>=0&&G.cur.opts[i].ok;
   G.cur.opts.forEach((o,k)=>{if(o.ok)bs[k].classList.add('ok');else if(k===i)bs[k].classList.add('no')});
   let msg;
-  if(ok){const base=100+Math.ceil(Math.max(0,G.qt))*10,r=Math.random(),m=r<.2?0:r<.6?2:3,pts=base*m;G.bonus+=pts;G.correct++;
+  if(ok){const base=100+Math.ceil(Math.max(0,G.qt))*10,r=Math.random(),m=r<.15?0:r<.65?2:3,before=score()+base,after=Math.floor(before*m);G.correct++;
     let k=0;const iv=setInterval(()=>{const f=$('fb');if(f)f.textContent='🎰 Spinning… x'+[0,2,3][k++%3]},110);
-    setTimeout(()=>{clearInterval(iv);const f=$('fb');if(f)f.textContent='Correct! '+base+' × '+m+' = +'+pts+(m===0?' 💀 bonus lost!':m===3?' 🔥 JACKPOT!':' ⚡')},1400);
+    setTimeout(()=>{clearInterval(iv);G.bonus+=after-score();const f=$('fb');if(f)f.textContent='Correct! (+'+base+' bonus) '+before+' × '+m+' = '+after+(m===0?' 💀 WIPED OUT!':m===3?' 🔥 JACKPOT x3!':' ⚡ x2!')},1400);
     msg='🎰 Spinning…'}
   else{G.bonus=Math.max(-Math.floor(G.ds),G.bonus-30);msg=(i<0?'Time’s up! ':'Wrong! ')+'-30 pts'}
   $('fb').textContent=msg;
