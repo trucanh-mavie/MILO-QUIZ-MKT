@@ -41,7 +41,7 @@ canvas{width:100%;display:block;border:2px solid var(--line);border-radius:12px;
 
 <section id="join" class="card">
   <h2>Ready?</h2>
-  <p class="mute">You have <b>3 minutes</b>. Jump over the cacti (Space / ↑ / tap the screen). Every 10 seconds a <b>quiz question</b> pops up. Answer correctly to spin the <b>mystery multiplier</b> on your <b>whole score</b>: x0 (wipe-out!), x2 or x3. The run ends when you lose all 3 lives or time runs out. You only get <b>one attempt</b>, so make it count!</p>
+  <p class="mute">You have <b>3 minutes</b>. Jump over the cacti (Space / ↑ / tap the screen). Every 10 seconds a <b>quiz question</b> pops up. Answer correctly to spin the <b>mystery multiplier</b> on your <b>whole score</b>: x0 (wipe-out!), x2 or x3. The run ends when you lose all 3 lives or time runs out. You can play <b>as many times as you like</b>: your best score counts.</p>
   <input id="name" maxlength="18" placeholder="Enter your name" autocomplete="off">
   <button id="go">START</button>
   <p class="mute" id="players"></p><p class="mute" id="note"></p>
@@ -102,9 +102,8 @@ const API='https://script.google.com/macros/s/AKfycbxLmiA1GK5h6m43ga8EAh2_c7YKtP
 const played=()=>{try{return localStorage.getItem('milo_played')}catch(e){return null}};
 let pid;try{pid=localStorage.getItem('milo_id');if(!pid){pid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('milo_id',pid)}}catch(e){pid=Math.random().toString(36).slice(2)}
 async function submit(fin,cor){
-  try{localStorage.setItem('milo_played',JSON.stringify({name:myName,score:fin,correct:cor}))}catch(e){}
   if(!API.startsWith('http')){$('save').textContent='Leaderboard not set up. Send your score code to the host.';return}
-  try{await fetch(API,{method:'POST',mode:'no-cors',body:JSON.stringify({id:pid,name:myName,score:fin,correct:cor})});$('save').textContent='Score submitted! Watch the big screen for the Top 3.'}
+  try{await fetch(API,{method:'POST',mode:'no-cors',body:JSON.stringify({id:pid+'-'+Date.now(),name:myName,score:fin,correct:cor})});$('save').textContent='Score submitted! Watch the big screen for the Top 3.'}
   catch(e){$('save').textContent='Could not submit. Send your score code to the host.'}
 }
 async function pull(){
@@ -113,6 +112,7 @@ async function pull(){
     rows=Object.values(m).sort((a,b)=>b.score-a.score);window.localRev=true;show('rev');renderRev();$('hostmsg').textContent='Live: '+rows.length+' players'}
   catch(e){$('hostmsg').textContent='Could not load the leaderboard. Check the API link.'}
 }
+setInterval(()=>{if(window.liveOn)pull()},4000);
 const hash=s=>{let h=7;for(const c of s+'milo27')h=(h*31+c.charCodeAt(0))>>>0;return h.toString(36).toUpperCase()};
 const mk=(n,s,c)=>n+'~'+s+'~'+c+'~'+hash(n+s+c);
 let db=null,uid=null,owner=false,status='open',rows=[],G=null,playing=false,myName='';
@@ -139,9 +139,9 @@ function renderRev(){
 /* ---------- game ---------- */
 const cv=$('cv'),cx=cv.getContext('2d'),W=720,H=240,GY=196;cv.width=W*2;cv.height=H*2;cx.scale(2,2);
 const DINO=["......#####..",".....##.#####",".....#########",".....####....",".....#####...","#...######...","##.#######.#.","###########..",".#########...","..#######....","...####.##...","...##...##..."];
-function start(){if(played())return;
+function start(){
   myName=($('name').value.trim()||'Dino').slice(0,18);
-  G={clock:0,runT:0,nextQ:8,dist:0,bonus:0,lives:3,correct:0,asked:0,y:0,vy:0,obs:[],spawn:1.2,inv:0,shield:0,x2:0,paused:false,over:false,qs:shuf(Q.map(q=>q)),last:performance.now(),qt:0,ans:false,cur:null,ds:0};
+  G={clock:0,runT:0,nextQ:8,cd:3.4,dist:0,bonus:0,lives:3,correct:0,asked:0,y:0,vy:0,obs:[],spawn:1.2,inv:0,shield:0,x2:0,paused:false,over:false,qs:shuf(Q.map(q=>q)),last:performance.now(),qt:0,ans:false,cur:null,ds:0};
   playing=true;$('end').classList.add('hide');show('game');requestAnimationFrame(loop);
 }
 const score=()=>Math.floor(G.ds)+G.bonus;
@@ -154,6 +154,7 @@ function loop(now){
   draw();hud();requestAnimationFrame(loop);
 }
 function update(dt){
+  if(G.cd>0){G.cd-=dt;G.clock-=dt;return}
   G.runT+=dt;const sp=320+Math.min(G.runT,150)*2.2;G.dist+=sp*dt;G.ds+=sp*dt/10*(G.x2>0?2:1);
   G.vy-=2000*dt;G.y+=G.vy*dt;if(G.y<=0){G.y=0;G.vy=0}
   G.inv-=dt;G.shield-=dt;G.x2-=dt;
@@ -198,7 +199,9 @@ function draw(){
   cx.fillStyle='#0a5c2c';G.obs.forEach(o=>{for(let k=0;k<o.w/15;k++){const x=o.x+k*15;cx.fillRect(x+5,GY-o.h,6,o.h);cx.fillRect(x,GY-o.h*.6,4,10);cx.fillRect(x+12,GY-o.h*.7,4,10)}});
   const blink=G.inv>0&&Math.floor(G.clock*10)%2;
   if(!blink){const d=DINO.slice();if(G.y<=0&&Math.floor(G.clock*10)%2)d[11]='...##.......';px(d,58,GY-G.y-36,3,'#00843d')}
-  if(G.shield>0){cx.strokeStyle='#f2b705';cx.lineWidth=3;cx.beginPath();cx.arc(76,GY-G.y-18,28,0,7);cx.stroke()}cx.restore()
+  if(G.shield>0){cx.strokeStyle='#f2b705';cx.lineWidth=3;cx.beginPath();cx.arc(76,GY-G.y-18,28,0,7);cx.stroke()}
+  if(G.cd>0){cx.fillStyle='#0a5c2c';cx.textAlign='center';cx.font='44px "Press Start 2P",monospace';cx.fillText(Math.ceil(G.cd-.4)>0?Math.ceil(G.cd-.4):'GO!',W/2,110);cx.font='11px "Press Start 2P",monospace';cx.fillText('GET READY - SPACE / TAP TO JUMP',W/2,150)}
+  cx.restore()
 }
 function hud(){
   $('hScore').textContent='SCORE '+score();$('hLives').textContent='❤'.repeat(Math.max(0,G.lives));
@@ -209,6 +212,7 @@ async function finish(){
   if(!G||G.over)return;G.over=true;playing=false;
   const fin=Math.max(0,score()),cor=G.correct;
   $('quiz').classList.add('hide');show('end');
+  $('again').classList.remove('hide');
   $('res').textContent='Score: '+fin+' · '+cor+'/'+G.asked+' correct';$('save').textContent='Saving your score…';$('code').value=mk(myName.replace(/[~\n]/g,''),fin,cor);
   if(!db||!uid){submit(fin,cor);return}
   try{const ref=db.doc('scores/'+uid),s=await ref.get(),prev=s.exists?s.data().score:-1;
@@ -228,8 +232,8 @@ addEventListener('keydown',e=>{
 cv.addEventListener('pointerdown',jump);
 const U=location.origin+location.pathname;
 $('qrb').onclick=()=>{$('qrurl').textContent=U;const b=$('qrbox');b.classList.toggle('hide');if(!$('qr').firstChild&&window.QRCode)new QRCode($('qr'),{text:U,width:240,height:240})};
-$('live').onclick=()=>{if(!API.startsWith('http')){$('hostmsg').textContent='Set the API link in index.html first.';return}window.live=true;renderRev.done=0;pull()};
-$('back').onclick=()=>{window.live=false;window.localRev=false;window.skipRev=true;show('join')};
+$('live').onclick=()=>{if(!API.startsWith('http')){$('hostmsg').textContent='Set the API link in index.html first.';return}window.liveOn=true;renderRev.done=0;pull()};
+$('back').onclick=()=>{window.liveOn=false;window.localRev=false;window.skipRev=true;show('join')};
 $('copy').onclick=()=>{const i=$('code');i.select();try{navigator.clipboard.writeText(i.value)}catch(e){document.execCommand('copy')}};
 $('rank').onclick=()=>{const m={};let bad=0;$('codes').value.split(/\n/).forEach(l=>{l=l.trim();if(!l)return;const p=l.split('~');if(p.length!==4||hash(p[0]+p[1]+p[2])!==p[3].toUpperCase()||isNaN(+p[1])){bad++;return}const s=+p[1];if(!m[p[0]]||m[p[0]].score<s)m[p[0]]={name:p[0],score:s,correct:+p[2]}});
   rows=Object.values(m).sort((a,b)=>b.score-a.score);window.localRev=true;renderRev.done=0;$('hostmsg').textContent=rows.length+' valid, '+bad+' invalid.';if(rows.length){show('rev');renderRev()}};
@@ -239,7 +243,7 @@ $('reset').onclick=async()=>{if(!confirm('Delete all scores and reopen the game?
 
 /* ---------- init (standalone, no login) ---------- */
 (function(){
-  $('note').textContent='Bạn có thể chơi lại nhiều lần!';
+  $('note').textContent='Play as often as you like. Your best score counts and is sent automatically.'
   if(new URLSearchParams(location.search).has('host'))$('host').classList.remove('hide');
 })();
 </script></body></html>
